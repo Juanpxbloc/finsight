@@ -1,0 +1,42 @@
+# Plantilla de configuracion. Copiar a application.properties y rellenar los valores reales:
+#   cp src/main/resources/application.properties.example src/main/resources/application.properties
+# application.properties esta en .gitignore: nunca subir credenciales al repositorio.
+
+# APPLICATION
+
+spring.application.name=finsight-api
+
+# POSTGRESQL
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/finsight_db?currentSchema=public
+spring.datasource.username=CAMBIAR_USUARIO
+spring.datasource.password=CAMBIAR_PASSWORD
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# El usuario necesita permisos de creacion en el esquema public (PostgreSQL 15+):
+#   GRANT USAGE, CREATE ON SCHEMA public TO <usuario>;
+
+# JPA
+
+#spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+
+spring.jpa.show-sql=true
+
+spring.jpa.properties.hibernate.format_sql=true
+
+# SERVER
+
+server.port=8080
+
+# Nunca exponer trazas ni detalles internos en las respuestas de error
+server.error.include-stacktrace=never
+server.error.include-message=never
+server.error.include-exception=false
+
+# Secret key (minimo 256 bits/32 caracteres para HMAC-SHA), en Base64.
+# Generar una propia, por ejemplo:  openssl rand -base64 48
+jwt.secret=CAMBIAR_SECRETO_BASE64
+# Expiration in milliseconds (24 hours)
+jwt.expiration=86400000

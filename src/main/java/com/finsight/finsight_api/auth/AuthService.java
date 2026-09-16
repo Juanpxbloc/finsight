@@ -1,9 +1,11 @@
 package com.finsight.finsight_api.auth;
 
+import com.finsight.finsight_api.common.ApiException;
 import com.finsight.finsight_api.common.JwtService;
 import com.finsight.finsight_api.user.User;
 import com.finsight.finsight_api.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +21,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ApiException(HttpStatus.CONFLICT, "Ya existe un usuario con el email: " + request.getEmail());
+        }
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())

@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### macOS ###
+.DS_Store
+
+### Configuracion local con credenciales (usar application.properties.example como plantilla) ###
+src/main/resources/application.properties
+src/main/resources/application-local.properties
