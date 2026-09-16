@@ -35,6 +35,10 @@ public class Company {
     @Column(nullable = false, length = 100)
     private String sector;
 
+    @Size(max = 50)
+    @Column(name = "tax_id", length = 50)
+    private String taxId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
