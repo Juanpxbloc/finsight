@@ -1,7 +1,5 @@
 package com.finsight.finsight_api.company;
 
-import com.finsight.finsight_api.company.CompanyResponse;
-import com.finsight.finsight_api.company.CreateCompanyRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,5 +23,19 @@ public class CompanyController {
     @GetMapping
     public ResponseEntity<List<CompanyResponse>> getMyCompanies() {
         return ResponseEntity.ok(companyService.getUserCompanies());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CompanyResponse> updateCompany(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateCompanyRequest request
+    ) {
+        return ResponseEntity.ok(companyService.updateCompany(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
+        companyService.deleteCompany(id);
+        return ResponseEntity.noContent().build();
     }
 }

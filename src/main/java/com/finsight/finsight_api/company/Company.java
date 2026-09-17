@@ -35,8 +35,9 @@ public class Company {
     @Column(nullable = false, length = 100)
     private String sector;
 
+    /** Opcional, pero unico a nivel global cuando viene informado (varios NULL si conviven). */
     @Size(max = 50)
-    @Column(name = "tax_id", length = 50)
+    @Column(name = "tax_id", length = 50, unique = true)
     private String taxId;
 
     @CreationTimestamp

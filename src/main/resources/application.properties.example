@@ -16,6 +16,11 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 
 # El usuario necesita permisos de creacion en el esquema public (PostgreSQL 15+):
 #   GRANT USAGE, CREATE ON SCHEMA public TO <usuario>;
+#
+# ddl-auto=update NO agrega restricciones unicas a columnas ya existentes,
+# asi que el indice unico de companies.tax_id se crea a mano una sola vez:
+#   CREATE UNIQUE INDEX IF NOT EXISTS uk_companies_tax_id ON companies (tax_id);
+# (varios NULL conviven sin chocar: el taxId es opcional)
 
 # JPA
 
