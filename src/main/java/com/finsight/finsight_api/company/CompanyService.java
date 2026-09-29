@@ -19,7 +19,7 @@ public class CompanyService {
         User currentUser = currentUser();
         String taxId = normalizeTaxId(request.getTaxId());
 
-        if (taxId != null && companyRepository.existsByTaxId(taxId)) {
+        if (taxId != null && companyRepository.existsByTaxIdAndActiveTrue(taxId)) {
             throw taxIdConflict(taxId);
         }
 
@@ -38,7 +38,7 @@ public class CompanyService {
         Company company = findOwnedCompany(id);
         String taxId = normalizeTaxId(request.getTaxId());
 
-        if (taxId != null && companyRepository.existsByTaxIdAndIdNot(taxId, id)) {
+        if (taxId != null && companyRepository.existsByTaxIdAndActiveTrueAndIdNot(taxId, id)) {
             throw taxIdConflict(taxId);
         }
 
@@ -49,23 +49,29 @@ public class CompanyService {
         return mapToResponse(companyRepository.save(company));
     }
 
+    /**
+     * Soft delete: the company is marked inactive and disappears from the API, but neither it
+     * nor its transactions are erased, so the financial history stays auditable.
+     */
     public void deleteCompany(Long id) {
-        companyRepository.delete(findOwnedCompany(id));
+        Company company = findOwnedCompany(id);
+        company.setActive(false);
+        companyRepository.save(company);
     }
 
     public List<CompanyResponse> getUserCompanies() {
-        return companyRepository.findByUserId(currentUser().getId())
+        return companyRepository.findByUserIdAndActiveTrue(currentUser().getId())
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
     /**
-     * Returns 404 both when the company does not exist and when it belongs to another user,
+     * Returns 404 when the company does not exist, belongs to another user, or was soft deleted,
      * so we never reveal the existence of someone else's company.
      */
     private Company findOwnedCompany(Long id) {
-        return companyRepository.findByIdAndUserId(id, currentUser().getId())
+        return companyRepository.findByIdAndUserIdAndActiveTrue(id, currentUser().getId())
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
                         "Company " + id + " does not exist or does not belong to the current user"));
@@ -75,7 +81,7 @@ public class CompanyService {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    /** An empty or blank string means "no taxId": avoids clashing with the unique constraint. */
+    /** An empty or blank string means "no taxId": avoids clashing with the unique index. */
     private String normalizeTaxId(String taxId) {
         if (taxId == null || taxId.isBlank()) {
             return null;

@@ -18,9 +18,15 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 #   GRANT USAGE, CREATE ON SCHEMA public TO <user>;
 #
 # ddl-auto=update does NOT add unique constraints to existing columns, so the
-# unique index on companies.tax_id is created by hand, once:
-#   CREATE UNIQUE INDEX IF NOT EXISTS uk_companies_tax_id ON companies (tax_id);
+# unique index on companies.tax_id is created by hand, once. It is PARTIAL, so a
+# soft-deleted company (active = false) releases its taxId for reuse:
+#   CREATE UNIQUE INDEX IF NOT EXISTS uk_companies_tax_id
+#       ON companies (tax_id) WHERE active;
 # (several NULLs coexist without clashing: taxId is optional)
+#
+# Companies use soft delete. On an existing database add the flag by hand, because
+# ddl-auto=update cannot add a NOT NULL column to a table that already has rows:
+#   ALTER TABLE companies ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true;
 #
 # Hibernate also creates CHECK constraints for enum columns (transactions.type,
 # alerts.severity). ddl-auto=update does not rewrite them, so if you rename enum

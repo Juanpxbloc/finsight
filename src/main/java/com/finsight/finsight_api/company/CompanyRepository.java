@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-    List<Company> findByUserId(Long userId);
-    Optional<Company> findByIdAndUserId(Long id, Long userId);
 
-    /** taxId is globally unique: no other company may repeat it. */
-    boolean existsByTaxId(String taxId);
+    // Soft-deleted companies (active = false) are invisible to the API
+    List<Company> findByUserIdAndActiveTrue(Long userId);
+    Optional<Company> findByIdAndUserIdAndActiveTrue(Long id, Long userId);
 
-    /** Same as existsByTaxId, but ignoring the company currently being updated. */
-    boolean existsByTaxIdAndIdNot(String taxId, Long id);
+    /** taxId is unique among active companies: a soft-deleted company releases it for reuse. */
+    boolean existsByTaxIdAndActiveTrue(String taxId);
+
+    /** Same as existsByTaxIdAndActiveTrue, but ignoring the company currently being updated. */
+    boolean existsByTaxIdAndActiveTrueAndIdNot(String taxId, Long id);
 }

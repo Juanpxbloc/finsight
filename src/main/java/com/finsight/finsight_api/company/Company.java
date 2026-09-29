@@ -35,10 +35,19 @@ public class Company {
     @Column(nullable = false, length = 100)
     private String sector;
 
-    /** Optional, but globally unique when present (several NULLs may coexist). */
+    /**
+     * Optional, but unique among active companies when present (several NULLs may coexist).
+     * Enforced by the partial index uk_companies_tax_id ON companies (tax_id) WHERE active,
+     * so a soft-deleted company releases its taxId.
+     */
     @Size(max = 50)
-    @Column(name = "tax_id", length = 50, unique = true)
+    @Column(name = "tax_id", length = 50)
     private String taxId;
+
+    /** Soft delete flag: DELETE marks the company inactive instead of erasing it and its transactions. */
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

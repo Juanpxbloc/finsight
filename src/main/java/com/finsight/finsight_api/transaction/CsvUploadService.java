@@ -52,7 +52,7 @@ public class CsvUploadService {
     public int processAndSaveCsv(Long companyId, MultipartFile file) {
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Company company = companyRepository.findByIdAndUserId(companyId, currentUser.getId())
+        Company company = companyRepository.findByIdAndUserIdAndActiveTrue(companyId, currentUser.getId())
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
                         "Company " + companyId + " does not exist or does not belong to the current user"));
