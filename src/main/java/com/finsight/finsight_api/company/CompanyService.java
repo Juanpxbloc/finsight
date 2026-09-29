@@ -61,21 +61,21 @@ public class CompanyService {
     }
 
     /**
-     * Devuelve 404 tanto si la empresa no existe como si pertenece a otro usuario:
-     * asi no se revela la existencia de empresas ajenas.
+     * Returns 404 both when the company does not exist and when it belongs to another user,
+     * so we never reveal the existence of someone else's company.
      */
     private Company findOwnedCompany(Long id) {
         return companyRepository.findByIdAndUserId(id, currentUser().getId())
                 .orElseThrow(() -> new ApiException(
                         HttpStatus.NOT_FOUND,
-                        "No existe una empresa con id " + id + " para este usuario"));
+                        "Company " + id + " does not exist or does not belong to the current user"));
     }
 
     private User currentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    /** Cadena vacia o en blanco equivale a "sin taxId": evita chocar con la restriccion unica. */
+    /** An empty or blank string means "no taxId": avoids clashing with the unique constraint. */
     private String normalizeTaxId(String taxId) {
         if (taxId == null || taxId.isBlank()) {
             return null;
@@ -84,7 +84,7 @@ public class CompanyService {
     }
 
     private ApiException taxIdConflict(String taxId) {
-        return new ApiException(HttpStatus.CONFLICT, "Ya existe una empresa registrada con el taxId: " + taxId);
+        return new ApiException(HttpStatus.CONFLICT, "A company is already registered with taxId: " + taxId);
     }
 
     private CompanyResponse mapToResponse(Company company) {

@@ -22,7 +22,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ApiException(HttpStatus.CONFLICT, "Ya existe un usuario con el email: " + request.getEmail());
+            throw new ApiException(HttpStatus.CONFLICT, "A user is already registered with email: " + request.getEmail());
         }
         var user = User.builder()
                 .name(request.getName())

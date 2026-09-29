@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-/** Las restricciones deben coincidir con las de la entidad Company: si no, el fallo salta en el flush (500) en vez de en la validacion (400). */
+/** Constraints must mirror the Company entity: otherwise the failure surfaces on flush (500) instead of on validation (400). */
 @Data
 public class CreateCompanyRequest {
     @NotBlank

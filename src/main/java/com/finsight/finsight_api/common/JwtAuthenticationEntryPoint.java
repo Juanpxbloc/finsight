@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
- * Devuelve 401 (en vez del 403 por defecto) cuando la peticion no esta autenticada.
- * Delega en el HandlerExceptionResolver para que GlobalExceptionHandler construya el cuerpo JSON.
+ * Returns 401 (instead of the default 403) when the request is not authenticated.
+ * Delegates to the HandlerExceptionResolver so GlobalExceptionHandler builds the JSON body.
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {

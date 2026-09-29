@@ -8,9 +8,9 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     List<Company> findByUserId(Long userId);
     Optional<Company> findByIdAndUserId(Long id, Long userId);
 
-    /** El taxId es unico a nivel global: ninguna otra empresa puede repetirlo. */
+    /** taxId is globally unique: no other company may repeat it. */
     boolean existsByTaxId(String taxId);
 
-    /** Igual que existsByTaxId, pero ignorando la empresa que se esta actualizando. */
+    /** Same as existsByTaxId, but ignoring the company currently being updated. */
     boolean existsByTaxIdAndIdNot(String taxId, Long id);
 }

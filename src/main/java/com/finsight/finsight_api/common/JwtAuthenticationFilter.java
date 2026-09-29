@@ -68,10 +68,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ex) {
-            // Firma invalida, token expirado o malformado, o usuario inexistente: 401, no 500.
+            // Invalid signature, expired or malformed token, or unknown user: 401, not 500.
             SecurityContextHolder.clearContext();
             resolver.resolveException(request, response, null,
-                    new InvalidTokenException("Token invalido o expirado", ex));
+                    new InvalidTokenException("Invalid or expired token", ex));
             return;
         }
 

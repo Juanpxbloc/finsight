@@ -30,15 +30,15 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CsvUploadService {
 
-    private static final String COL_AMOUNT = "monto";
-    private static final String COL_TYPE = "tipo";
-    private static final String COL_CATEGORY = "categoria";
-    private static final String COL_DESCRIPTION = "descripcion";
-    private static final String COL_DATE = "fecha";
+    private static final String COL_AMOUNT = "amount";
+    private static final String COL_TYPE = "type";
+    private static final String COL_CATEGORY = "category";
+    private static final String COL_DESCRIPTION = "description";
+    private static final String COL_DATE = "date";
 
-    private static final List<String> REQUIRED_COLUMNS = List.of(COL_AMOUNT, COL_TYPE, COL_CATEGORY, COL_DATE);
+    private static final List<String> REQUIRED_COLUMNS = List.of(COL_DATE, COL_TYPE, COL_CATEGORY, COL_AMOUNT);
 
-    /** Limites replicados de la entidad Transaction: asi el fallo sale como 400 y no como 500 en el flush. */
+    /** Mirrors the limits declared in the Transaction entity, so a bad row fails as 400 instead of 500 on flush. */
     private static final int CATEGORY_MIN = 3;
     private static final int CATEGORY_MAX = 100;
     private static final int DESCRIPTION_MAX = 500;
@@ -91,7 +91,7 @@ public class CsvUploadService {
         return transactions.size();
     }
 
-    /** Excel suele exportar UTF-8 con BOM, que dejaria el primer encabezado como "﻿monto". */
+    /** Excel exports UTF-8 with a byte-order mark, which would otherwise read as the header "﻿date". */
     private BufferedReader skipByteOrderMark(BufferedReader reader) throws IOException {
         reader.mark(1);
         if (reader.read() != BOM) {
@@ -109,9 +109,9 @@ public class CsvUploadService {
                 .toList();
 
         if (!missing.isEmpty()) {
-            throw badRequest("Mandatory info missing on the file header: " + String.join(", ", missing)
+            throw badRequest("Missing mandatory columns in the file header: " + String.join(", ", missing)
                     + ". Expected: " + String.join(", ", REQUIRED_COLUMNS)
-                    + " (Description is optional)");
+                    + " (description is optional)");
         }
     }
 
@@ -131,7 +131,7 @@ public class CsvUploadService {
     private String required(CSVRecord csvRecord, String column, long row) {
         String value = optional(csvRecord, column);
         if (value == null) {
-            throw badRequest("Row " + row + ": missing column value '" + column + "'");
+            throw badRequest("Row " + row + ": missing value for column '" + column + "'");
         }
         return value;
     }
@@ -149,12 +149,12 @@ public class CsvUploadService {
         try {
             amount = new BigDecimal(raw);
         } catch (NumberFormatException e) {
-            throw badRequest("Row " + row + ": Amount '" + raw
-                    + "' Is not a valid number. Use decimal, for example 1500.50");
+            throw badRequest("Row " + row + ": amount '" + raw
+                    + "' is not a valid number. Use a decimal point, for example 1500.50");
         }
         if (amount.signum() < 0) {
-            throw badRequest("Row " + row + ": Amount cannot be negative (" + raw
-                    + "). Use column 'type' to distinguish INCOME from EXPENSES");
+            throw badRequest("Row " + row + ": amount cannot be negative (" + raw
+                    + "). Use the 'type' column to distinguish INCOME from EXPENSE");
         }
         return amount;
     }
@@ -163,21 +163,21 @@ public class CsvUploadService {
         try {
             return TransactionType.valueOf(raw.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw badRequest("Row " + row + ":  type '" + raw + "' is not valid. Allowed values: INCOME, EXPENSES");
+            throw badRequest("Row " + row + ": type '" + raw + "' is not valid. Allowed values: INCOME, EXPENSE");
         }
     }
 
     private String parseCategory(String raw, long row) {
         if (raw.length() < CATEGORY_MIN || raw.length() > CATEGORY_MAX) {
             throw badRequest("Row " + row + ": category must have between " + CATEGORY_MIN
-                    + " and " + CATEGORY_MAX + " characters (Received: '" + raw + "')");
+                    + " and " + CATEGORY_MAX + " characters (received: '" + raw + "')");
         }
         return raw;
     }
 
     private String parseDescription(String raw, long row) {
         if (raw != null && raw.length() > DESCRIPTION_MAX) {
-            throw badRequest("Row " + row + ": description overcomes " + DESCRIPTION_MAX + " characters");
+            throw badRequest("Row " + row + ": description exceeds " + DESCRIPTION_MAX + " characters");
         }
         return raw;
     }
@@ -187,10 +187,10 @@ public class CsvUploadService {
         try {
             date = LocalDate.parse(raw);
         } catch (DateTimeParseException e) {
-            throw badRequest("Row " + row + ": date '" + raw + "' is not valid. Expected format: AAAA-MM-DD");
+            throw badRequest("Row " + row + ": date '" + raw + "' is not valid. Expected format: YYYY-MM-DD");
         }
         if (date.isAfter(LocalDate.now())) {
-            throw badRequest("Row " + row + ": date " + raw + " cannot be future. Use today or a past date.");
+            throw badRequest("Row " + row + ": date " + raw + " cannot be in the future. Use today or a past date.");
         }
         return date;
     }

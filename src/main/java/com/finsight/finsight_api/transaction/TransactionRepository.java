@@ -5,9 +5,9 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    // Obtener transacciones de una empresa asegurando que pertenezcan al usuario del token
+    // Transactions of a company, ensuring they belong to the user in the token
     List<Transaction> findByCompanyIdAndCompanyUserId(Long companyId, Long userId);
 
-    // Opcional: Eliminar transacciones previas antes de subir un nuevo CSV si deseas sobrescribir
+    // Optional: delete previous transactions before uploading a new CSV, if you want to overwrite
     void deleteByCompanyIdAndCompanyUserId(Long companyId, Long userId);
 }
