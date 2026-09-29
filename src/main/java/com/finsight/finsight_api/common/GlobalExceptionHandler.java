@@ -12,6 +12,9 @@ import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -60,6 +63,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
         return build(HttpStatus.CONFLICT, "El recurso ya existe o viola una restriccion de datos", request);
+    }
+
+    /** Archivo mas grande que el limite configurado. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleUploadTooLarge(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return build(HttpStatus.PAYLOAD_TOO_LARGE, "El archivo supera el tamano maximo permitido", request);
+    }
+
+    /** Falta la parte 'file' del formulario multipart, o la peticion no es multipart. */
+    @ExceptionHandler({MissingServletRequestPartException.class, MultipartException.class})
+    public ResponseEntity<ErrorResponse> handleMissingPart(Exception ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST,
+                "La peticion debe ser multipart/form-data e incluir el archivo en el campo 'file'", request);
     }
 
     /** Ruta inexistente: 404, no 500. */

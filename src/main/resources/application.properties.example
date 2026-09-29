@@ -35,6 +35,10 @@ spring.jpa.properties.hibernate.format_sql=true
 
 server.port=8080
 
+# Carga de CSV (el valor por defecto de Spring es 1MB por archivo)
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
 # Nunca exponer trazas ni detalles internos en las respuestas de error
 server.error.include-stacktrace=never
 server.error.include-message=never
