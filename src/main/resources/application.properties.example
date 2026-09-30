@@ -62,3 +62,29 @@ server.error.include-exception=false
 jwt.secret=CHANGE_ME_BASE64_SECRET
 # Expiration in milliseconds (24 hours)
 jwt.expiration=86400000
+
+
+# PYTHON ML MICROSERVICE
+
+# Base URL of the Python inference microservice. This API calls POST <url>/api/v1/predict
+# and sends the payload in snake_case (FastAPI/pydantic default):
+#   {"company_id": 1, "transactions": [{"amount": 100.00, "type": "INCOME",
+#                                       "category": "Sales", "date": "2026-01-31"}]}
+# and expects back:
+#   {"risk_score": 0.78, "risk_level": "HIGH", "shap_values": {...}, "generated_alerts": [...]}
+python.ml.service.url=http://localhost:8000
+# Never leave these unbounded: a hung microservice would block the request thread forever
+python.ml.service.connect-timeout-ms=5000
+python.ml.service.response-timeout-ms=30000
+# Inference + SHAP can exceed the 256KB default in-memory buffer of the codecs
+python.ml.service.max-response-size-bytes=4194304
+
+# Shared secret sent to the microservice on every call, so that reaching it on
+# the network is not enough to run inference on it. The microservice must reject
+# any request that does not carry it (FastAPI: APIKeyHeader(name="X-API-Key")).
+# Generate your own, for example:  openssl rand -base64 32
+# Left empty the calls go out unauthenticated and a warning is logged at startup:
+# acceptable only for local development against localhost.
+python.ml.service.api-key=CHANGE_ME_ML_SHARED_SECRET
+# Override only if the microservice expects a different header name:
+#python.ml.service.api-key-header=X-API-Key
