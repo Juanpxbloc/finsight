@@ -64,6 +64,19 @@ jwt.secret=CHANGE_ME_BASE64_SECRET
 jwt.expiration=86400000
 
 
+# CORS (Next.js frontend)
+
+# Exact origins (scheme + host + port) allowed to call the API from a browser,
+# comma separated. Not paths, and never "*" if credentials are ever enabled.
+# Add the deployed frontend here, for example:
+#   cors.allowed-origins=http://localhost:3000,https://finsight.vercel.app
+# Only browser (client component) calls need this: fetches made from Next.js on
+# the server (Server Components, route handlers, server actions) are not subject
+# to CORS at all.
+cors.allowed-origins=http://localhost:3000
+# How long the browser may cache the preflight result, in seconds
+cors.max-age-seconds=3600
+
 # PYTHON ML MICROSERVICE
 
 # Base URL of the Python inference microservice. This API calls POST <url>/api/v1/predict
