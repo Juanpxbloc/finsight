@@ -101,3 +101,30 @@ python.ml.service.max-response-size-bytes=4194304
 python.ml.service.api-key=CHANGE_ME_ML_SHARED_SECRET
 # Override only if the microservice expects a different header name:
 #python.ml.service.api-key-header=X-API-Key
+
+# LLM / AI ASSISTANT (SPRING AI)
+
+# Backs GET /api/ia/preguntar, which answers finance and accounting questions
+# in Spanish. The endpoint sits behind the usual JWT authentication, so callers
+# must send an Authorization: Bearer <token> header.
+#
+# The OpenAI starter speaks the OpenAI chat-completions protocol, so this works
+# against OpenAI itself or any compatible provider (OpenRouter, Azure OpenAI,
+# a local Ollama, ...). Only these three properties change between them.
+#
+# Required: without a key the application FAILS TO START, because the
+# ChatClient.Builder that IaService injects cannot build a chat model:
+#   "At least one credential source must be specified: credential (apiKey), ..."
+spring.ai.openai.api-key=CHANGE_ME_LLM_API_KEY
+
+# Base URL of the provider, INCLUDING the version segment. Spring AI 2.x
+# delegates to the official openai-java SDK, which treats this as the full base
+# and does not append /v1 itself, so a URL missing it yields 404s on every call.
+# Omit this line entirely to talk to OpenAI directly (it defaults correctly).
+# For OpenRouter:
+spring.ai.openai.base-url=https://openrouter.ai/api/v1
+
+# Model id, as the provider spells it. OpenRouter namespaces by vendor
+# ("openai/gpt-4o-mini", "anthropic/claude-sonnet-5", "openrouter/free");
+# OpenAI uses the bare name ("gpt-4o-mini").
+spring.ai.openai.chat.options.model=CHANGE_ME_MODEL_ID
